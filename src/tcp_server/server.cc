@@ -8,8 +8,11 @@
 #include <string>
 #include <unordered_map>
 
+#include <thread>
+
 
 std::unordered_map<int, int> kv;
+std::mutex kv_mutex;
 
 std::string process_command(const std::string& line) {
     std::istringstream iss(line);
@@ -31,21 +34,27 @@ std::string process_command(const std::string& line) {
         int value;
         iss >> key >> value;
 
+        kv_mutex.lock();
         kv[key] = value;
+        kv_mutex.unlock();
+
         return "SUCCESS: Operation set succeeded.";
     }
     else if (command == "delete") {
         int key;
         iss >> key;
 
+        kv_mutex.lock();
         kv.erase(key);
+        kv_mutex.unlock();
+
         return "SUCCESS: Operation delete succeeded.";
     }
     
     return "ERROR: Invalid command.";
 }
 
-void handle_receive(int client_fd) {
+void handle_client(int client_fd) {
     std::string pending_message;
     char buffer[1024];
 
@@ -71,6 +80,7 @@ void handle_receive(int client_fd) {
             send(client_fd, response.data(), response.size(), 0);
         }
     }
+    close(client_fd);
 }
 
 int main() {
@@ -104,15 +114,15 @@ int main() {
 
     std::cout << "Listening on port 5555..." << std::endl;
     
-    int client_fd = accept(server_fd, nullptr, nullptr);
-    if (client_fd == -1) {
-        std::cerr << "Accept failed." << std::endl;
-        return 1;
+    while (true) {
+        int client_fd = accept(server_fd, nullptr, nullptr);
+        if (client_fd == -1) {
+            continue;
+        }
+
+        std::thread(handle_client, client_fd).detach();
     }
 
-    handle_receive(client_fd);
-
-    close(client_fd);
     close(server_fd);
 
     return 0;
