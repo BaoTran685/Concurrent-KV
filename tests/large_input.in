@@ -1,0 +1,83 @@
+set 1 10
+set 2 20
+set 3 3
+set 5 50
+set 6 6
+set 7 7
+set 8 8
+set 9 9
+set 10 10
+get 1
+get 2
+get 3
+get 4
+get 5
+get 6
+get 7
+get 8
+get 9
+get 10
+set 57438 1
+set 57438 1
+set 86521 2
+set 85185 3
+set 76190 4
+set 33433 5
+set 99810 6
+set 15413 7
+set 45860 8
+set 81579 9
+set 2097 10
+set 5406 11
+set 3406 12
+set 6522 13
+set 44501 12
+set 25197 11
+set 15537 10
+set 22450 9
+set 50089 8
+set 28949 7
+set 89681 6
+set 37489 5
+set 55352 4
+set 44935 3
+set 69456 2
+set 64512 1
+set 99378 2
+set 85259 3
+set 68276 4
+set 72805 5
+set 62563 6
+set 78934 7
+get 57438
+get 57438
+get 86521
+get 85185
+get 76190
+get 33433
+get 99810
+get 15413
+get 45860
+get 81579
+get 2097 
+get 5406 
+get 3406 
+get 6522 
+get 44501
+get 25197
+get 15537
+get 22450
+get 50089
+get 28949
+get 89681
+get 37489
+get 55352
+get 44935
+get 69456
+get 64512
+get 99378
+get 85259
+get 68276
+get 72805
+get 62563
+get 78934
