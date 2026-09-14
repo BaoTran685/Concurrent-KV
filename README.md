@@ -8,7 +8,7 @@ A multithreaded in-memory key-value store written in C++ to explore **TCP networ
 - TCP server using POSIX sockets: `socket()`, `bind()`, `listen()`, `accept()`, `recv()`
 - Newline-delimited (`\n`) TCP command protocol
 - Fixed 3-worker pool using the producer-consumer pattern to service clients
-- Thread synchronization using:
+- Thread synchronization using one of:
     - `std::mutex` *(global locking)*
     - `std::shared_mutex` *(reader-writer locking)*
     - sharded `std::shared_mutex` *(lock sharding)*
