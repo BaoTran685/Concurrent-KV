@@ -68,7 +68,7 @@ double benchmark(KVStore& store, std::function<void(KVStore&, std::vector<int>&)
 
 void test(std::function<void(KVStore&, std::vector<int>&)> run_function, std::string run_type) {
     int iterations = TEST_ITERATIONS;
-    Benchmark_Result final_result;
+    Benchmark_Result final_result {0, 0, 0};
     while (iterations--) {
         GlobalLock_KVStore globallock_kv;
         SharedLock_KVStore sharedlock_kv;
