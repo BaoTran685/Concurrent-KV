@@ -13,6 +13,8 @@
 #include <thread>
 #include <shared_mutex>
 
+#include "shared_lock.h"
+
 // Number of workers supported.
 // Rather than having one client -> one thread, which is bad because then 10K clients -> 10K threads,
 //  resulting in using a lot of resources.
@@ -25,42 +27,6 @@ constexpr int WORKERS = 3;
 std::queue<int> client_queue;
 std::mutex client_queue_mutex;
 std::condition_variable client_queue_cv;
-
-// For storing the key-value pairs and handling concurrent operations.
-class KVStore {
-private:
-    std::unordered_map<int, int> data;
-    std::mutex mutex;
-public:
-    int _get(int key);
-    void _set(int key, int value);
-    void _delete(int key);
-};
-
-// KVStore::_get(key) retrieves the value tied to such key if exists. Otherwise return INT_MAX.
-// Implemented using shared lock so concurent reads are supported.
-int KVStore::_get(int key) {
-    std::shared_lock<std::mutex> lock(mutex);
-    auto it = data.find(key);
-    if (it == data.end()) {
-        return INT_MAX;
-    }
-    return it->second;
-}
-
-// KVStore::_set(key, value) puts the key-value pair into our data structure.
-//  This operation is mutually exclusive.
-void KVStore::_set(int key, int value) {
-    std::unique_lock<std::mutex> lock(mutex);
-    data[key] = value;
-}
-
-// KVStore::_delete(key) deletes such key-value pair.
-//  This operation is mutually exclusive.
-void KVStore::_delete(int key) {
-    std::unique_lock<std::mutex> lock(mutex);
-    data.erase(key);
-}
 
 KVStore store;
 
