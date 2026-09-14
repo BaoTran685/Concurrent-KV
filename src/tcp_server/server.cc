@@ -10,8 +10,8 @@
 #include <vector>
 #include <queue>
 
-#include <optional>
 #include <thread>
+#include <shared_mutex>
 
 // Number of workers supported.
 // Rather than having one client -> one thread, which is bad because then 10K clients -> 10K threads,
@@ -25,7 +25,6 @@ constexpr int WORKERS = 3;
 std::queue<int> client_queue;
 std::mutex client_queue_mutex;
 std::condition_variable client_queue_cv;
-bool shutting_down = false;
 
 // For storing the key-value pairs and handling concurrent operations.
 class KVStore {
@@ -33,26 +32,40 @@ private:
     std::unordered_map<int, int> data;
     std::mutex mutex;
 public:
-    int _get(int key) {
-        auto it = data.find(key);
-        if (it == data.end()) {
-            return INT_MAX;
-        }
-        return it->second;
-    }
-
-    void _set(int key, int value) {
-        std::lock_guard<std::mutex> lock(mutex);
-        data[key] = value;
-    }
-
-    void _delete(int key) {
-        std::lock_guard<std::mutex> lock(mutex);
-        data.erase(key);
-    }
+    int _get(int key);
+    void _set(int key, int value);
+    void _delete(int key);
 };
+
+// KVStore::_get(key) retrieves the value tied to such key if exists. Otherwise return INT_MAX.
+// Implemented using shared lock so concurent reads are supported.
+int KVStore::_get(int key) {
+    std::shared_lock<std::mutex> lock(mutex);
+    auto it = data.find(key);
+    if (it == data.end()) {
+        return INT_MAX;
+    }
+    return it->second;
+}
+
+// KVStore::_set(key, value) puts the key-value pair into our data structure.
+//  This operation is mutually exclusive.
+void KVStore::_set(int key, int value) {
+    std::unique_lock<std::mutex> lock(mutex);
+    data[key] = value;
+}
+
+// KVStore::_delete(key) deletes such key-value pair.
+//  This operation is mutually exclusive.
+void KVStore::_delete(int key) {
+    std::unique_lock<std::mutex> lock(mutex);
+    data.erase(key);
+}
+
 KVStore store;
 
+// process_command(line) takes in a line and determines if it is one of the three operations: GET, SET, or DELETE
+//  and performs such operation. The function then returns the status of execution (SUCCESS or ERROR).
 std::string process_command(const std::string& line) {
     std::istringstream iss(line);
     std::string command;
@@ -87,18 +100,25 @@ std::string process_command(const std::string& line) {
     return "ERROR: Invalid command.";
 }
 
+// handle_client(client_fd) waits for the bytes coming from client_fd via recv function.
+//  Then by the character '\n', we can separate the different commands.
 void handle_client(int client_fd) {
     std::string pending_message;
     char buffer[1024];
 
     while (true) {
+        // Wait for the bytes to come in, which is written to buffer.
         ssize_t bytes = recv(client_fd, buffer, sizeof(buffer), 0);
         if (bytes <= 0) {
             break;
         }
 
+        // Append the bytes as characters to our pending_message, so we treat the previous bytes
+        //  and current bytes as a whole.
         pending_message.append(buffer, bytes);
 
+        // Process the pending_message: peeling each substrings separated by '\n' and process the substrings
+        //  as one command.
         while (true) {
             size_t newline_position = pending_message.find('\n');
             if (newline_position == std::string::npos) {
@@ -116,19 +136,16 @@ void handle_client(int client_fd) {
     close(client_fd);
 }
 
+// worker(): creates a worker thread that is tied to one client.
 void worker() {
     while (true) {
         int client_fd;
-
         {
             std::unique_lock<std::mutex> lock(client_queue_mutex);
-
             client_queue_cv.wait(lock);
-
             client_fd = client_queue.front();
             client_queue.pop();
         }
-
         handle_client(client_fd);
     }
 }
