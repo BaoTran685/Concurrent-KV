@@ -7,10 +7,26 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <vector>
+#include <queue>
 
 #include <thread>
 
+// Number of workers supported.
+// Rather than having one client -> one thread, which is bad because then 10K clients -> 10K threads,
+//  resulting in using a lot of resources.
+// We only use some threads to handle that big number of clients concurrently. For example, we can
+//  have 3 workers working for client A, client B, client C requests. Then we may put some of these client
+//  handlers to sleep to handle client D, client E, and so on requests.
+constexpr int WORKERS = 3;
 
+// For handling producer-consumer 
+std::queue<int> client_queue;
+std::mutex client_queue_mutex;
+std::condition_variable client_queue_cv;
+bool shutting_down = false;
+
+// For storing the key-value pairs and handling concurrent operations.
 std::unordered_map<int, int> kv;
 std::mutex kv_mutex;
 
@@ -83,6 +99,23 @@ void handle_client(int client_fd) {
     close(client_fd);
 }
 
+void worker() {
+    while (true) {
+        int client_fd;
+
+        {
+            std::unique_lock<std::mutex> lock(client_queue_mutex);
+
+            client_queue_cv.wait(lock);
+
+            client_fd = client_queue.front();
+            client_queue.pop();
+        }
+
+        handle_client(client_fd);
+    }
+}
+
 int main() {
     
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -114,13 +147,23 @@ int main() {
 
     std::cout << "Listening on port 5555..." << std::endl;
     
+    std::vector<std::thread> workers;
+    for (int i = 0; i < WORKERS; ++i) {
+        workers.push_back(std::thread(&worker));
+    }
+
     while (true) {
         int client_fd = accept(server_fd, nullptr, nullptr);
         if (client_fd == -1) {
             continue;
         }
 
-        std::thread(handle_client, client_fd).detach();
+        {
+            std::lock_guard<std::mutex> lock(client_queue_mutex);
+            client_queue.push(client_fd);
+        }
+
+        client_queue_cv.notify_one();
     }
 
     close(server_fd);
