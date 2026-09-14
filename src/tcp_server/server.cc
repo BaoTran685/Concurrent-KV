@@ -10,6 +10,7 @@
 #include <vector>
 #include <queue>
 
+#include <optional>
 #include <thread>
 
 // Number of workers supported.
@@ -27,8 +28,30 @@ std::condition_variable client_queue_cv;
 bool shutting_down = false;
 
 // For storing the key-value pairs and handling concurrent operations.
-std::unordered_map<int, int> kv;
-std::mutex kv_mutex;
+class KVStore {
+private:
+    std::unordered_map<int, int> data;
+    std::mutex mutex;
+public:
+    int _get(int key) {
+        auto it = data.find(key);
+        if (it == data.end()) {
+            return INT_MAX;
+        }
+        return it->second;
+    }
+
+    void _set(int key, int value) {
+        std::lock_guard<std::mutex> lock(mutex);
+        data[key] = value;
+    }
+
+    void _delete(int key) {
+        std::lock_guard<std::mutex> lock(mutex);
+        data.erase(key);
+    }
+};
+KVStore store;
 
 std::string process_command(const std::string& line) {
     std::istringstream iss(line);
@@ -39,31 +62,25 @@ std::string process_command(const std::string& line) {
         int key;
         iss >> key;
 
-        auto it = kv.find(key);
-        if (it == kv.end()) {
-            return "ERROR: Key not found.";
+        int result = store._get(key);
+        if (result == INT_MAX) {
+            return "ERROR: Key does not exist.";
         }
-        return std::to_string(it->second);
+        return std::to_string(result);
     }
     else if (command == "set") {
         int key;
         int value;
         iss >> key >> value;
 
-        kv_mutex.lock();
-        kv[key] = value;
-        kv_mutex.unlock();
-
+        store._set(key, value);
         return "SUCCESS: Operation set succeeded.";
     }
     else if (command == "delete") {
         int key;
         iss >> key;
 
-        kv_mutex.lock();
-        kv.erase(key);
-        kv_mutex.unlock();
-
+        store._delete(key);
         return "SUCCESS: Operation delete succeeded.";
     }
     
