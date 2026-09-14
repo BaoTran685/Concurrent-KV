@@ -1,0 +1,17 @@
+
+
+16 threads, 10 iterations:
+Benchmark GET command | Average duration and Average throughput
+Global Lock: 2.81858s; 5.67663e+06 ops/s
+Shared Lock: 0.782676s; 2.04427e+07 ops/s
+Sharded Lock: 0.158031s; 1.01246e+08 ops/s
+
+Benchmark SET command | Average duration and Average throughput
+Global Lock: 7.06748s; 2.26389e+06 ops/s
+Shared Lock: 7.67431s; 2.08488e+06 ops/s
+Sharded Lock: 0.923418s; 1.73269e+07 ops/s
+
+Benchmark MIX command | Average duration and Average throughput
+Global Lock: 7.30089s; 2.19151e+06 ops/s
+Shared Lock: 14.8778s; 1.07543e+06 ops/s
+Sharded Lock: 2.75384s; 5.81007e+06 ops/s

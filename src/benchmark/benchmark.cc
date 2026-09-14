@@ -14,9 +14,9 @@
 #include <functional>
 
 constexpr int KEY_RANGE = 1e5;
-constexpr int THREAD_COUNT = 16;
+constexpr int THREAD_COUNT = 8;
 constexpr int OPERATIONS_PER_THREAD = 1e6;
-constexpr int TEST_ITERATIONS = 3;
+constexpr int TEST_ITERATIONS = 10;
 
 struct Benchmark_Result {
     double globallock_kv_seconds;
@@ -96,7 +96,7 @@ void test(std::function<void(KVStore&, std::vector<int>&)> run_function, std::st
     std::cout << "Benchmark " << run_type << " command | Average duration and Average throughput" << std::endl;
     std::cout << "Global Lock: " << final_result.globallock_kv_seconds << "s; " << operations / final_result.globallock_kv_seconds << " ops/s" << std::endl;
     std::cout << "Shared Lock: " << final_result.sharedlock_kv_seconds << "s; " << operations / final_result.sharedlock_kv_seconds << " ops/s" << std::endl;
-    std::cout << "Sharded Shared Lock: " << final_result.shardedsharedlock_kv_seconds << "s; " << operations / final_result.shardedsharedlock_kv_seconds << " ops/s" << std::endl;
+    std::cout << "Sharded Lock: " << final_result.shardedsharedlock_kv_seconds << "s; " << operations / final_result.shardedsharedlock_kv_seconds << " ops/s" << std::endl;
 }
 
 int main() {

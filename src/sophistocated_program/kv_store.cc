@@ -5,6 +5,7 @@
 
 #include <unordered_map>
 #include <array>
+#include <climits>
 
 // GlobalLock_KVStore: This implementation uses one mutex for all GET, SET, and DELETE commands.
 // Therefore, all operations run mutually exclusively. -> Not quite efficient.
