@@ -1,4 +1,34 @@
+4 threads, 10 iterations:
+Benchmark GET command | Average duration and Average throughput
+Global Lock: 0.412732s; 9.69152e+06 ops/s
+Shared Lock: 0.213443s; 1.87404e+07 ops/s
+Sharded Lock: 0.0703323s; 5.68729e+07 ops/s
 
+Benchmark SET command | Average duration and Average throughput
+Global Lock: 0.743205s; 5.38209e+06 ops/s
+Shared Lock: 0.815968s; 4.90215e+06 ops/s
+Sharded Lock: 0.236692s; 1.68996e+07 ops/s
+
+Benchmark MIX command | Average duration and Average throughput
+Global Lock: 0.699161s; 5.72114e+06 ops/s
+Shared Lock: 2.21022s; 1.80978e+06 ops/s
+Sharded Lock: 0.506224s; 7.90163e+06 ops/s
+
+8 threads, 10 iterations:
+Benchmark GET command | Average duration and Average throughput
+Global Lock: 1.2037s; 6.64617e+06 ops/s
+Shared Lock: 0.52994s; 1.50961e+07 ops/s
+Sharded Lock: 0.100602s; 7.95211e+07 ops/s
+
+Benchmark SET command | Average duration and Average throughput
+Global Lock: 2.16204s; 3.70021e+06 ops/s
+Shared Lock: 2.70151s; 2.96131e+06 ops/s
+Sharded Lock: 0.456657s; 1.75186e+07 ops/s
+
+Benchmark MIX command | Average duration and Average throughput
+Global Lock: 2.12411s; 3.76628e+06 ops/s
+Shared Lock: 6.57964s; 1.21587e+06 ops/s
+Sharded Lock: 1.1727s; 6.82186e+06 ops/s
 
 16 threads, 10 iterations:
 Benchmark GET command | Average duration and Average throughput
@@ -15,3 +45,19 @@ Benchmark MIX command | Average duration and Average throughput
 Global Lock: 7.30089s; 2.19151e+06 ops/s
 Shared Lock: 14.8778s; 1.07543e+06 ops/s
 Sharded Lock: 2.75384s; 5.81007e+06 ops/s
+
+32 threads, 10 iterations:
+Benchmark GET command | Average duration and Average throughput
+Global Lock: 5.78841s; 5.52829e+06 ops/s
+Shared Lock: 2.13111s; 1.50156e+07 ops/s
+Sharded Lock: 0.302519s; 1.05779e+08 ops/s
+
+Benchmark SET command | Average duration and Average throughput
+Global Lock: 13.7541s; 2.32657e+06 ops/s
+Shared Lock: 124.761s; 256491 ops/s
+Sharded Lock: 29.218s; 1.09521e+06 ops/s
+
+Benchmark MIX command | Average duration and Average throughput
+Global Lock: 14.1058s; 2.26857e+06 ops/s
+Shared Lock: 30.6974s; 1.04243e+06 ops/s
+Sharded Lock: 5.94579s; 5.38196e+06 ops/s

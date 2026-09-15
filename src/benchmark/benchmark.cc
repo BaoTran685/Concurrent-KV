@@ -14,7 +14,7 @@
 #include <functional>
 
 constexpr int KEY_RANGE = 1e5;
-constexpr int THREAD_COUNT = 8;
+constexpr int THREAD_COUNT = 32;
 constexpr int OPERATIONS_PER_THREAD = 1e6;
 constexpr int TEST_ITERATIONS = 10;
 
