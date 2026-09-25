@@ -16,4 +16,6 @@ public:
 private:
     std::unique_ptr<KVStore> engine;
     WriteAheadLog wal;
+
+    std::mutex mutation_mutex;
 };

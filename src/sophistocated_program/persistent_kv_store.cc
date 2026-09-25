@@ -24,11 +24,15 @@ int PersistentKVStore::_get(int key) {
 }
 
 void PersistentKVStore::_set(int key, int value) {
+    std::lock_guard<std::mutex> lock(mutation_mutex);
+
     wal.appendSet(key, value);
     engine->_set(key, value);
 }
 
 void PersistentKVStore::_delete(int key) {
+    std::lock_guard<std::mutex> lock(mutation_mutex);
+    
     wal.appendDelete(key);
     engine->_delete(key);
 }
