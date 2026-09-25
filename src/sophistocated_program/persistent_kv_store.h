@@ -1,3 +1,5 @@
+#ifndef PERSISTENT_KV_STORE_H
+#define PERSISTENT_KV_STORE_H
 
 #include "kv_store.h"
 #include "wal.h"
@@ -19,3 +21,5 @@ private:
 
     std::mutex mutation_mutex;
 };
+
+#endif

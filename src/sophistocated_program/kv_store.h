@@ -1,3 +1,6 @@
+#ifndef KV_STORE_H
+#define KV_STORE_H
+
 #include <unordered_map>
 #include <array>
 #include <mutex>
@@ -50,3 +53,5 @@ public:
     void _set(int key, int value) override;
     void _delete(int key) override;
 };
+
+#endif

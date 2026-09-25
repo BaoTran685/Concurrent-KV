@@ -1,3 +1,6 @@
+#ifndef WAL_H
+#define WAL_H
+
 #include <functional>
 #include <mutex>
 #include <string>
@@ -34,5 +37,4 @@ private:
     std::mutex wal_mutex;
 };
 
-
-
+#endif
