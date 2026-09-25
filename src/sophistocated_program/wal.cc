@@ -27,11 +27,13 @@ WriteAheadLog::~WriteAheadLog() {
     }
 }
 
+// appendSet(key, value) creates a line corresponding to a SET operation with key value to put into the WAL file.
 void WriteAheadLog::appendSet(int key, int value) {
     std::string record = "S " + std::to_string(key) + " " + std::to_string(value) + "\n";
     append(record);
 }
 
+// appendDelete(key) creates a line corresponding to a DELETE operation with key to put into the WAL file.
 void WriteAheadLog::appendDelete(int key) {
     std::string record = "D " + std::to_string(key) + "\n";
     append(record);
@@ -92,6 +94,7 @@ void WriteAheadLog::replay(const std::function<void(const WalRecord&)>& apply) {
     std::string line;
     while (std::getline(input, line)) {
         if (input.eof()) {
+            // only breaks when the last line is incomplete and ends without "\n"
             break;
         }
 
