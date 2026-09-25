@@ -1,6 +1,7 @@
 # Concurrent Key-Value Store in C++
 
-A multithreaded in-memory key-value store written in C++ to explore **TCP networking, thread pools, synchronization, lock contention, and concurrent data structure**.
+A multithreaded in-memory key-value store written in C++ to explore TCP networking, thread pools, synchronization, lock contention, concurrent data structure,
+crash recovery, and write ahead logging (WAL).
 
 ## Features
 
@@ -26,13 +27,7 @@ Worker threads wait on a `std::condition_variable`. When a client becomes availa
 
 Each worker remains assigned to its client until that client disconnects.
 
-Therefore, the current implementation supports up to **three persistent client connections simultanously**. Aditional clients remain in the queue until a worker becomes available.
-
----
-## Benchmark
-
-
-
+Therefore, the current implementation supports up to three persistent client connections simultanously. Aditional clients remain in the queue until a worker becomes available.
 
 ---
 ## How to run?
@@ -71,6 +66,23 @@ Then type in the commands like the ones supported in the above naive program `ge
 
 The current implementaion supports up to three simultaneous clients.
 
+The current system supports persistent storage. Turning off the server will not lose all the in memory data but it is stored in file `kw.wal`. When turning on the server, the first thing the server does is to replay the operations from this file to populate its in-memory engine.
+
 ### Benchmark Program:
 
-Yes you can run the benchmark yourself too! The above benchmark result is run on my machine and it can produce different results compared to your machine.
+Yes you can run the benchmark yourself too! The below benchmark result is from my machine and your machine may produce different benchmark results.
+
+```bash
+cd src/benchmark
+g++ -std=c++20 benchmark.cc ../sophistocated_program/kv_store.cc -I ../sophistocated_program/ -o prog
+./prog
+```
+
+You can edit the global variables in the file `benchmark.cc` to edit the benchmark configurations. The default setting is:
+
+- `KEY_RANGE = 1e5`: the range for the randomly generated keys
+- `THREAD_COUNT = 4`: the number of threads running concurrently
+- `OPERATIONS_PER_THREAD = 1e6`: the number of operations performed by each thread
+- `TEST_ITERATIONS = 10`: the number of testing iterations
+
+
