@@ -14,7 +14,7 @@
 #include <shared_mutex>
 #include <csignal>
 
-#include "kv_store.h"
+#include "persistent_kv_store.h"
 
 // Number of workers supported.
 // Rather than having one client -> one thread, which is bad because then 10K clients -> 10K threads,
@@ -45,7 +45,8 @@ void handle_signal(int) {
 }
 
 // Data engine
-ShardedSharedLock_KVStore store;
+std::unique_ptr<KVStore> engine = std::make_unique<ShardedSharedLock_KVStore>();
+PersistentKVStore store {std::move(engine), "kv.wal"};
 
 // process_command(line) takes in a line and determines if it is one of the three operations: GET, SET, or DELETE
 //  and performs such operation. The function then returns the status of execution (SUCCESS or ERROR).
